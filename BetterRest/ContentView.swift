@@ -26,36 +26,56 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             Form {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("When do you want to wake up?")
-                        .font(.headline)
+                Section {
                     DatePicker("Please enter a time", selection: $wakeUp, displayedComponents: .hourAndMinute )
                         .labelsHidden()
+                        .onChange(of: wakeUp) {
+                            calculateBedTime()
+                        }
+                } header: {
+                    Text("When do you want to wake up?")
+                        .font(.headline)
                 }
-
-                VStack(alignment: .leading, spacing: 0) {
+                Section {
+                    Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
+                        .onChange(of: sleepAmount) {
+                            calculateBedTime()
+                        }
+                } header: {
                     Text("Desired amount of sleep")
                         .font(.headline)
-                    Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
                 }
-
-                VStack(alignment: .leading, spacing: 0) {
+                Section {
+                    Picker("Daily Coffee Intake", selection: $coffeeAmount) {
+                        ForEach(1..<21) {
+                            Text($0 == 1 ? "1 Cup" : "\($0) Cups")
+                        }
+                    }
+                    .onChange(of: coffeeAmount) {
+                        calculateBedTime()
+                    }
+                } header: {
                     Text("Daily ☕️ Intake")
                         .font(.headline)
-                    Stepper(coffeeAmount == 1 ? "1 Cup" : "\(coffeeAmount) cups", value: $coffeeAmount, in: 1...20)
                 }
 
+                Section {
+                    Text(alertMessage)
+                } header: {
+                    Text(alertTitle)
+                        .font(.headline)
+                }
             }
             .navigationTitle("BetterRest")
-            .toolbar {
-                Button("Calculate", action: calculateBedTime)
-            }
+//            .toolbar {
+//                Button("Calculate", action: calculateBedTime)
+//            }
             .padding()
-            .alert(alertTitle, isPresented: $showingAlert) {
-                Button("OK") {}
-            } message: {
-                Text(alertMessage)
-            }
+//            .alert(alertTitle, isPresented: $showingAlert) {
+//                Button("OK") {}
+//            } message: {
+//                Text(alertMessage)
+//            }
         }
     }
 
@@ -79,7 +99,7 @@ struct ContentView: View {
             alertMessage = "Sorry, there was a problem calculating your bedtime."
         }
 
-        showingAlert = true
+        //showingAlert = true
     }
 }
 
